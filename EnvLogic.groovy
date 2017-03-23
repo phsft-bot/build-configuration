@@ -5,8 +5,6 @@ def comment = ghprbCommentBody.toLowerCase()
 final COMMENT_REGEX = "build ((?<overrideMatrix>just|also) on (?<matrix>((centos7|mac1011|slc6|ubuntu14)\\/(gcc49|gcc62|native),?\\s?)*))?(with flags (?<flags>.*))?"
 def matcher = Pattern.compile(COMMENT_REGEX).matcher(comment)
 
-def addDefaultMatrix = false
-
 def environment = [:]
 
 if (matcher.find()) {
@@ -46,7 +44,7 @@ if (matcher.find()) {
 }
 
 
-void appendFlagsToMap(flags, map) {
+static void appendFlagsToMap(flags, map) {
     def parsedCompilerFlags = flags.split(" ")
     for (String unparsedFlag : parsedCompilerFlags) {
         if (unparsedFlag.contains("=")) {

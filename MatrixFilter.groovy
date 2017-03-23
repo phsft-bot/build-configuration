@@ -30,26 +30,22 @@ if (!env.containsKey("addDefaultMatrix") || env.addDefaultMatrix.equals("true"))
     println "No default config set"
 }
 
-String formatCombination(compiler, platform) {
+static String formatCombination(String compiler, String platform) {
     return "BUILDTYPE=Debug,COMPILER=" + compiler + ",LABEL=" + platform
 }
 
-void addMatrixConfiguration(compiler, platform) {
+void addMatrixConfiguration(String compiler, String platform) {
     addCombinationFromString(formatCombination(compiler, platform))
 }
 
-void addCombination(combination) {
-    result["matrix"] = result["matrix"] ?: []
-    result["matrix"] << combination
-}
-
-void addCombinationFromString(combinationString) {
+void addCombinationFromString(String combinationString) {
     if (!availableCombinations.contains(combinationString)) {
         println "WARNING: Combination " + combinationString + " is not recognized, skipping"
     } else {
         println "Adding combination " + combinationString
         def combination = Combination.fromString(combinationString)
-        addCombination(combination)
+        result["matrix"] = result["matrix"] ?: []
+        result["matrix"] << combination
     }
 }
 
