@@ -2,7 +2,7 @@ import java.util.regex.Pattern
 
 def comment = ghprbCommentBody.trim()
 
-final COMMENT_REGEX = "build ((?<overrideMatrix>just|also) on (?<matrix>(\\S*\\/\\S*,?\\s?)*))?(with flags (?<flags>.*))?"
+final COMMENT_REGEX = "build ((?<overrideMatrix>just|also) on (?<matrix>([a-z0-9]*\\/[a-z0-9]*,?\\s?)*))?(with flags (?<flags>.*))?"
 def matcher = Pattern.compile(COMMENT_REGEX).matcher(comment)
 
 def environment = [matrixConfig: "", ExtraCMakeOptions: "", addDefaultMatrix: "true"]

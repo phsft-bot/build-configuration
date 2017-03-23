@@ -3,6 +3,8 @@ class Config {
                                    [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"mac1011"],
                                    [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"centos7"],
                                    [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"slc6"],
+                                   [BUILDTYPE:"Debug", COMPILER:"clang_gcc52", LABEL:"slc6"],
+                                   [BUILDTYPE:"Debug", COMPILER:"clang_gcc62", LABEL:"slc6"],
                                    [BUILDTYPE:"Debug", COMPILER:"gcc62", LABEL:"slc6"],
                                    [BUILDTYPE:"Debug", COMPILER:"native", LABEL:"ubuntu14"]]
 
@@ -126,6 +128,18 @@ returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac
 assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "mac1011/blaah, blaah/native"])
 matrix = executeMatrix(returnValue)
 assertMatrixConfiguration(matrix, [])
+
+// Newlines are not part of the command with flags
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build with flags -Dfoo=bar\nhello this is dog",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "true", matrixConfig: "", ExtraCMakeOptions: "-Dfoo=bar"])
+
+// Period are not part of the command with platforms
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/gcc49.",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "mac1011/gcc49"])
+matrix = executeMatrix(returnValue)
+assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "gcc49", LABEL: "mac1011"]])
 
 
 println "\nAll tests passing"
