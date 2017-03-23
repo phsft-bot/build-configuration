@@ -141,5 +141,11 @@ assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "mac101
 matrix = executeMatrix(returnValue)
 assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "gcc49", LABEL: "mac1011"]])
 
+// Underscores are recognized
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on slc6/clang_gcc52",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "slc6/clang_gcc52"])
+matrix = executeMatrix(returnValue)
+assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "clang_gcc52", LABEL: "slc6"]])
 
 println "\nAll tests passing"
