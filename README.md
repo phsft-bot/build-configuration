@@ -9,6 +9,7 @@ platforms ::= ("also"|"just") "on" platform { [","] platform }
 platform  ::= label/compiler
 label     ::= "centos7"|"mac1011"|"ubuntu14"
 compiler  ::= "gcc49"|"gcc62"|"native"
+flags     ::= "with flags" { flag }
 ```
 ## Examples:
 ##### @phsft-bot build just on centos7/gcc49, ubuntu14/native with flags -Dtcmalloc=ON
