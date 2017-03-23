@@ -6,7 +6,7 @@ combinations.each{
     availableCombinations.add(formatCombination(it.COMPILER, it.LABEL))
 }
 
-if (env.containsKey("matrixConfig")) {
+if (env.containsKey("matrixConfig") && env.matrixConfig.size() > 0) {
     def patterns = env.matrixConfig.replace("," ,"").split(" ")
 
     for (String unparsedPattern : patterns) {
@@ -19,7 +19,7 @@ if (env.containsKey("matrixConfig")) {
     println "Warning: matrixConfig not set"
 }
 
-if (!env.containsKey("addDefaultMatrix") || env.addDefaultMatrix.equals("true")) {
+if (!env.containsKey("addDefaultMatrix") || String.valueOf(env.addDefaultMatrix).equals("true")) {
     // Default matrix configuration for pull requests:
     addMatrixConfiguration("gcc49", "centos7")
     addMatrixConfiguration("native", "mac1011")

@@ -1,24 +1,26 @@
-// @phsft-bot build just on mac1011/gcc49 ubuntu14/native with flags -Dfoo=don -Dbar=foobar
+class Config {
+    static ALL_COMBINATIONS =     [[BUILDTYPE:"Debug", COMPILER:"native", LABEL:"mac1011"],
+                                   [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"mac1011"],
+                                   [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"centos7"],
+                                   [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"slc6"],
+                                   [BUILDTYPE:"Debug", COMPILER:"gcc62", LABEL:"slc6"],
+                                   [BUILDTYPE:"Debug", COMPILER:"native", LABEL:"ubuntu14"]]
 
-// Assert default build matrix is discarded
-returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/gcc49",
-                               _ExtraCMakeOptions: ""])
-assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "mac1011/gcc49"])
-
-matrix = executeMatrix(returnValue)
-assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "gcc49", LABEL: "mac1012"]])
-
-
-
-
-println "returned: "
-println r
-
+    static DEFAULT_COMBINATIONS = [[BUILDTYPE:"Debug", COMPILER:"native", LABEL:"mac1011"],
+                                   [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"centos7"],
+                                   [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"slc6"],
+                                   [BUILDTYPE:"Debug", COMPILER:"gcc62", LABEL:"slc6"],
+                                   [BUILDTYPE:"Debug", COMPILER:"native", LABEL:"ubuntu14"]]
+}
 
 static void assertMatrixConfiguration(actualMatrix, expected) {
     if (!expected.isEmpty() || !actualMatrix.isEmpty()) {
         expected.each {
             assert(configurationExists(actualMatrix["matrix"], it))
+        }
+
+        actualMatrix["matrix"].each {
+            assert(configurationExists(expected, it))
         }
     }
 }
@@ -37,8 +39,8 @@ static boolean configurationExists(actualConfiguration, expectedConfig) {
 }
 
 static void assertEnvVariable(Map actual, Map expectedValues) {
-    expectedValues.each { k, v -> 
-        assert(actual[k] == v)
+    expectedValues.each { k, v ->
+        assert(String.valueOf(actual[k]) == String.valueOf(v))
     }
 }
 
@@ -55,24 +57,8 @@ static Map executeEnvLogic(Map params) {
 }
 
 static Map executeMatrix(Map environmentVariables) {
-    def combinations = [[BUILDTYPE:"Debug", COMPILER:"gcc62", LABEL:"slc6"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"lcgapp-centos7-x86-64-28"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"ubuntu14"],
-                        [BUILDTYPE:"Debug", COMPILER:"native", LABEL:"mac1011"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc62", LABEL:"lcgapp-centos7-x86-64-28"],
-                        [BUILDTYPE:"Debug", COMPILER:"native", LABEL:"ubuntu14"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc62", LABEL:"ubuntu14"],
-                        [BUILDTYPE:"Debug", COMPILER:"native", LABEL:"centos7"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"slc6"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc62", LABEL:"mac1011"],
-                        [BUILDTYPE:"Debug", COMPILER:"native", LABEL:"slc6"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"centos7"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc49", LABEL:"mac1011"],
-                        [BUILDTYPE:"Debug", COMPILER:"gcc62", LABEL:"centos7"],
-                        [BUILDTYPE:"Debug", COMPILER:"native", LABEL:"lcgapp-centos7-x86-64-28"]]
-
     Binding binding = new Binding()
-    binding.setVariable("combinations", combinations)
+    binding.setVariable("combinations", Config.ALL_COMBINATIONS)
     binding.setVariable("env", environmentVariables)
     binding.setVariable("result", [:])
 
@@ -81,3 +67,57 @@ static Map executeMatrix(Map environmentVariables) {
     shell.evaluate(new File("Combination.groovy"))
     return (Map) shell.evaluate(new File("MatrixFilter.groovy"))
 }
+
+// Assert default build matrix is discarded
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/gcc49",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "mac1011/gcc49"])
+
+matrix = executeMatrix(returnValue)
+assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "gcc49", LABEL: "mac1011"]])
+
+// Bot should run default build with no recognizable command
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build!",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [matrixConfig: "", ExtraCMakeOptions: "", addDefaultMatrix: "true"])
+
+matrix = executeMatrix(returnValue)
+assertMatrixConfiguration(matrix, Config.DEFAULT_COMBINATIONS)
+
+// Default build matrix is not discarded
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build also on mac1011/gcc49",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "true", matrixConfig: "mac1011/gcc49"])
+
+matrix = executeMatrix(returnValue)
+expectedMatrix = Config.DEFAULT_COMBINATIONS.collect()
+expectedMatrix.add([BUILDTYPE: "Debug", COMPILER: "gcc49", LABEL: "mac1011"])
+assertMatrixConfiguration(matrix, expectedMatrix)
+
+// Just cmake options are read
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build with flags -Dfoo=bar",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "true", matrixConfig: "", ExtraCMakeOptions: "-Dfoo=bar"])
+
+// Cmake flags are overwritten
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build with flags -Dfoo=bar",
+                               _ExtraCMakeOptions: "-Dfoo=don"])
+assertEnvVariable(returnValue, [addDefaultMatrix: "true", matrixConfig: "", ExtraCMakeOptions: "-Dfoo=bar"])
+
+// Multiple platforms are added
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/gcc49 ubuntu14/native",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "mac1011/gcc49 ubuntu14/native"])
+matrix = executeMatrix(returnValue)
+assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "gcc49", LABEL: "mac1011"],
+                                   [BUILDTYPE: "Debug", COMPILER: "native", LABEL: "ubuntu14"]])
+
+// Multiple platforms are added separated by comma
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/gcc49, ubuntu14/native",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "mac1011/gcc49, ubuntu14/native"])
+matrix = executeMatrix(returnValue)
+assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "gcc49", LABEL: "mac1011"],
+                                   [BUILDTYPE: "Debug", COMPILER: "native", LABEL: "ubuntu14"]])
+
+println "\nAll tests passing"
