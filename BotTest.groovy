@@ -120,4 +120,12 @@ matrix = executeMatrix(returnValue)
 assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "gcc49", LABEL: "mac1011"],
                                    [BUILDTYPE: "Debug", COMPILER: "native", LABEL: "ubuntu14"]])
 
+// Ignore unsupported platforms
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/blaah, blaah/native",
+                               _ExtraCMakeOptions: ""])
+assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "mac1011/blaah, blaah/native"])
+matrix = executeMatrix(returnValue)
+assertMatrixConfiguration(matrix, [])
+
+
 println "\nAll tests passing"

@@ -13,7 +13,7 @@ if (env.containsKey("matrixConfig") && env.matrixConfig.size() > 0) {
         def patternArgs = unparsedPattern.split("/")
         addMatrixConfiguration(patternArgs[1], patternArgs[0])
 
-        println "Recognized label " + patternArgs[0] + " with compiler " + patternArgs[1]
+        println "Received label " + patternArgs[0] + " with compiler " + patternArgs[1]
     }
 } else {
     println "Warning: matrixConfig not set"
