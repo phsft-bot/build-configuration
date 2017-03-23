@@ -8,9 +8,11 @@ command   ::= "@phsft-bot build" [platforms] [flags]
 platforms ::= ("also"|"just") "on" platform { [","] platform } 
 platform  ::= label/compiler
 label     ::= "centos7"|"mac1011"|"ubuntu14"
-compiler  ::= "gcc49"|"gcc62"|"native"
+compiler  ::= "gcc49"|"gcc62"|"native"|
 flags     ::= "with flags" { flag }
 ```
+
+Note: The phrase can be ended by endline. What comes on the other lines will not be interpreted by the bot. Specified flags in the command will overwrite conflicting environment variables that is already set for the job.
 ## Examples:
 ##### @phsft-bot build just on centos7/gcc49, ubuntu14/native with flags -Dtcmalloc=ON
 Discards default build matrix configuration in Jenkins and builds only on Centos7/gcc49 and Ubuntu 14/native with the CMake flags `-Dtcmalloc=ON`.
