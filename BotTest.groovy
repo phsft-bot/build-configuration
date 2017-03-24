@@ -70,6 +70,26 @@ static Map executeMatrix(Map environmentVariables) {
     return (Map) shell.evaluate(new File("MatrixFilter.groovy"))
 }
 
+class Jenkins {
+    String jobName
+    Object trigger
+
+    Jenkins(String jobName, Object trigger) {
+        this.jobName = jobName
+        this.trigger = trigger
+    }
+
+    Jenkins getJob(String jobName) {
+        return this
+    }
+
+    Map getTriggers() {
+        return [k: trigger]
+    }
+}
+
+evaluate(new File("GhprbTrigger.groovy"))
+
 // Assert default build matrix is discarded
 returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/gcc49",
                                _ExtraCMakeOptions: ""])
@@ -147,5 +167,15 @@ returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on slc
 assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "slc6/clang_gcc52"])
 matrix = executeMatrix(returnValue)
 assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "clang_gcc52", LABEL: "slc6"]])
+
+// Right comment is posted
+triggerMock = new org.jenkinsci.plugins.ghprb.GhprbTrigger(3, "test")
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on slc6/clang_gcc52",
+                               _ExtraCMakeOptions: "", jenkins: new Jenkins("foo", triggerMock),
+                               ghprbPullId: 3])
+assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "slc6/clang_gcc52"])
+matrix = executeMatrix(returnValue)
+assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "clang_gcc52", LABEL: "slc6"]])
+assertTrue(triggerMock.wasTriggered)
 
 println "\nAll tests passing"
