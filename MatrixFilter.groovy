@@ -49,4 +49,27 @@ void addCombinationFromString(String combinationString) {
     }
 }
 
+void postComment(String comment) {
+    if (!binding.variables.containsKey("jenkins") || jenkins == null) {
+        println "Warning: jenkins is null, ignoring comment [" + comment + "]"
+        return
+    }
+
+    // Ugly hack to get ahold the GhprbTriggerMock, otherwise jenkins.getJob().getTrigger(classname)
+    // would work, but getTrigger does not exist despite the fact that it is documented.
+    def ghprbTrigger = null
+    jenkins.getJob(env.JOB_NAME).getTriggers().each { k, v ->
+        println v.getClass().toString()
+        // Class path does not want to work, workaround to get around this hence toString()
+        if (v.getClass().toString().equals("class org.jenkinsci.plugins.ghprb.GhprbTrigger")) {
+            ghprbTrigger = v
+        }
+    }
+
+
+    ghprbTrigger.getRepository().addComment(Integer.valueOf(env.ghprbPullId), comment)
+}
+
+postComment("test")
+
 result

@@ -58,15 +58,20 @@ static Map executeEnvLogic(Map params) {
     return returnedMap
 }
 
-static Map executeMatrix(Map environmentVariables) {
+static Map executeMatrix(Map environmentVariables, Jenkins jenkins = null) {
+    if (jenkins != null) {
+        environmentVariables.put("JOB_NAME", jenkins.jobName)
+    }
+
     Binding binding = new Binding()
     binding.setVariable("combinations", Config.ALL_COMBINATIONS)
     binding.setVariable("env", environmentVariables)
     binding.setVariable("result", [:])
+    binding.setVariable("jenkins", jenkins)
 
     GroovyShell shell = new GroovyShell(binding)
     // Add the Combination mock to the shell
-    shell.evaluate(new File("Combination.groovy"))
+    shell.evaluate(new File("mocks/Combination.groovy"))
     return (Map) shell.evaluate(new File("MatrixFilter.groovy"))
 }
 
@@ -77,9 +82,12 @@ class Jenkins {
     Jenkins(String jobName, Object trigger) {
         this.jobName = jobName
         this.trigger = trigger
+
+        assert(trigger.getClass().toString().equals("class org.jenkinsci.plugins.ghprb.GhprbTrigger"))
     }
 
     Jenkins getJob(String jobName) {
+        assert(jobName == this.jobName)
         return this
     }
 
@@ -88,7 +96,8 @@ class Jenkins {
     }
 }
 
-evaluate(new File("GhprbTrigger.groovy"))
+GroovyShell shell = new GroovyShell()
+def ghprbTriggerMockFactory = shell.parse(new File("mocks/GhprbTriggerMock.groovy"))
 
 // Assert default build matrix is discarded
 returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/gcc49",
@@ -169,13 +178,14 @@ matrix = executeMatrix(returnValue)
 assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "clang_gcc52", LABEL: "slc6"]])
 
 // Right comment is posted
-triggerMock = new org.jenkinsci.plugins.ghprb.GhprbTrigger(3, "test")
+triggerMock = ghprbTriggerMockFactory.mock()
 returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on slc6/clang_gcc52",
-                               _ExtraCMakeOptions: "", jenkins: new Jenkins("foo", triggerMock),
-                               ghprbPullId: 3])
+                               _ExtraCMakeOptions: "", ghprbPullId: 3])
 assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "slc6/clang_gcc52"])
-matrix = executeMatrix(returnValue)
+matrix = executeMatrix(returnValue, new Jenkins("foo", triggerMock))
 assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "clang_gcc52", LABEL: "slc6"]])
-assertTrue(triggerMock.wasTriggered)
+assert(triggerMock.prId == 3)
+assert(triggerMock.comment == "test")
+assert(triggerMock.triggered)
 
 println "\nAll tests passing"
