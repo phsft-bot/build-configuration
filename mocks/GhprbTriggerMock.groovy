@@ -9,16 +9,14 @@ class GhprbTrigger {
     String comment
     boolean triggered
 
-    GhprbTrigger() {
-        println "default constructor called"
-        println getClass().toString()
-    }
-
     def getRepository() {
         return this
     }
 
     void addComment(int prId, String comment) {
+        // Should always just post one comment.
+        assert(!triggered)
+
         this.prId = prId
         this.comment = comment
         this.triggered = true

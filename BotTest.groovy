@@ -98,7 +98,6 @@ class Jenkins {
 
 GroovyShell shell = new GroovyShell()
 def ghprbTriggerMockFactory = shell.parse(new File("mocks/GhprbTriggerMock.groovy"))
-
 // Assert default build matrix is discarded
 returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build just on mac1011/gcc49",
                                _ExtraCMakeOptions: ""])
@@ -185,7 +184,18 @@ assertEnvVariable(returnValue, [addDefaultMatrix: "false", matrixConfig: "slc6/c
 matrix = executeMatrix(returnValue, new Jenkins("foo", triggerMock))
 assertMatrixConfiguration(matrix, [[BUILDTYPE: "Debug", COMPILER: "clang_gcc52", LABEL: "slc6"]])
 assert(triggerMock.prId == 3)
-assert(triggerMock.comment == "test")
+assert(triggerMock.comment.size() > 0)
 assert(triggerMock.triggered)
+
+// Assert cmake flags are posted in comments
+triggerMock = ghprbTriggerMockFactory.mock()
+returnValue = executeEnvLogic([ghprbCommentBody  : "@phsft-bot build with flags -Dfoo=bar",
+                               _ExtraCMakeOptions: "", ghprbPullId: 3])
+assertEnvVariable(returnValue, [addDefaultMatrix: "true", matrixConfig: "", ExtraCMakeOptions: "-Dfoo=bar"])
+matrix = executeMatrix(returnValue, new Jenkins("foo", triggerMock))
+assertMatrixConfiguration(matrix, Config.DEFAULT_COMBINATIONS)
+
+assert(triggerMock.triggered)
+assert(triggerMock.comment.contains("-Dfoo=bar"))
 
 println "\nAll tests passing"

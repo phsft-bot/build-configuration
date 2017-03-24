@@ -27,18 +27,15 @@ if (matcher.find()) {
         
         environment.ExtraCMakeOptions = completeOptions
         println "ExtraCMakeOptions set to " + completeOptions
-        println "Ref: " + environment["ExtraCMakeOptions"]
     } else {
         environment.ExtraCMakeOptions = _ExtraCMakeOptions
     }
 
-
     environment.addDefaultMatrix = String.valueOf(addDefaultMatrix)
 
-
-    println "Override matrix: " + addDefaultMatrix
-    println "Flags: " + compilerFlags
-    println "Matrix config: " + unparsedMatrixConfig
+    println "Add default matrix config: " + addDefaultMatrix
+    println "CMake flags: " + compilerFlags
+    println "Added matrix config: " + unparsedMatrixConfig
 } else {
     println "Unrecognizable comment: " + comment
     environment.addDefaultMatrix = true
