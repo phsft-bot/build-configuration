@@ -38,6 +38,7 @@ if (matcher.find()) {
     println "Added matrix config: " + unparsedMatrixConfig
 } else {
     println "Unrecognizable comment: " + comment
+    environment.ExtraCMakeOptions = _ExtraCMakeOptions
     environment.addDefaultMatrix = true
 }
 
