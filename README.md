@@ -17,6 +17,9 @@ Note: The phrase can be ended by endline. What comes on the other lines will not
 ##### @phsft-bot build
 Starts build on default build configuration.
 
+##### @phsft-bot build with flags -Dctest_test_exclude_none=on
+Starts build on default build configuration and run all the tests.
+
 ##### @phsft-bot build just on centos7/gcc49, ubuntu14/native with flags -Dtcmalloc=ON
 Discards default build matrix configuration in Jenkins and builds only on Centos7/gcc49 and Ubuntu 14/native with the CMake flags `-Dtcmalloc=ON`.
 
