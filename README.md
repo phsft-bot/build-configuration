@@ -1,12 +1,12 @@
 # Build Configuration Integration
-This configuration allows administrators of @phsft-bot bot to specify which compiler, platform, and compiler flags to build pullrequests on. 
+This configuration allows administrators of @phsft-bot bot to specify which platform and compiler flags to build pullrequests on. 
 
 # Grammar (BNF notation)
 
 ```
 command   ::= "@phsft-bot build" [platforms] [flags]
 platforms ::= ("also"|"just") "on" platform { [","] platform } 
-platform  ::= label/compiler
+platform  ::= label/spec
 label     ::= "centos7"|"mac1011"|"ubuntu14"
 spec      ::= "default"|"python3"|"rtcxxmod"|"noimt"|"cxx14"|"cxx17"
 flags     ::= "with flags" { flag }
