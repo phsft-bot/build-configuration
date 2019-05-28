@@ -7,7 +7,7 @@ This configuration allows administrators of @phsft-bot bot to specify which plat
 command   ::= "@phsft-bot build" [platforms] [flags]
 platforms ::= ("also"|"just") "on" platform { [","] platform } 
 platform  ::= label/spec
-label     ::= "centos7"|"mac1011"|"ubuntu14"
+label     ::= "ROOT-centos7"|"mac1014"|"ROOT-ubuntu16"|"ROOT-fedora30"|"windows"|...
 spec      ::= "default"|"python3"|"rtcxxmod"|"noimt"|"cxx14"|"cxx17"
 flags     ::= "with flags" { flag }
 ```
@@ -20,13 +20,13 @@ Starts build on default build configuration.
 ##### @phsft-bot build with flags -DCTEST_TEST_EXCLUDE_NONE=On
 Starts build on default build configuration and run all the tests.
 
-##### @phsft-bot build just on centos7/default, ubuntu14/noimt with flags -Dtcmalloc=ON
+##### @phsft-bot build just on ROOT-centos7/default, ROOT-ubuntu14/noimt with flags -Dtcmalloc=ON
 Discards default build matrix configuration in Jenkins and builds only on Centos7/gcc49 and Ubuntu 14/native with the CMake flags `-Dtcmalloc=ON`.
 
-##### @phsft-bot build also on centos7/default, ubuntu14/noimt with flags -Dtcmalloc=ON
+##### @phsft-bot build also on ROOT-centos7/default, ROOT-ubuntu14/noimt with flags -Dtcmalloc=ON
 Same as previous example but does not discard default matrix configuration.
 
-##### @phsft-bot build also on centos7/default, ubuntu14/noimt
+##### @phsft-bot build also on ROOT-centos7/default, ROOT-ubuntu14/noimt
 Same as previous example without any additional CMake flags.
 
 
