@@ -7,7 +7,7 @@ This configuration allows administrators of @phsft-bot bot to specify which plat
 command   ::= "@phsft-bot build" [platforms] [flags]
 platforms ::= ("also"|"just") "on" platform { [","] platform } 
 platform  ::= label/spec
-label     ::= "ROOT-centos7"|"mac1014"|"ROOT-ubuntu16"|"ROOT-fedora30"|"windows"|...
+label     ::= "ROOT-centos7"|"mac1014"|"mac10beta"|"ROOT-ubuntu16"|"ROOT-fedora30"|"windows10"|...
 spec      ::= "default"|"python3"|"rtcxxmod"|"noimt"|"cxx14"|"cxx17"
 flags     ::= "with flags" { flag }
 ```
