@@ -1,5 +1,8 @@
+# Prevent Jenkins builds
+Mention `[skip-ci]` in the title or body of a pull request to prevent Jenkins from automatically testing it. Useful for instance for documentation changes.
+
 # Build Configuration Integration
-This configuration allows administrators of @phsft-bot bot to specify which platform and compiler flags to build pullrequests on. 
+This configuration allows administrators of @phsft-bot bot to specify which platform and compiler flags to build pullrequests on.
 
 # Grammar (BNF notation)
 
