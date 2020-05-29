@@ -10,12 +10,18 @@ This configuration allows administrators of @phsft-bot bot to specify which plat
 command   ::= "@phsft-bot build" [platforms] [flags]
 platforms ::= ("also"|"just") "on" platform { [","] platform } 
 platform  ::= label/spec
-label     ::= "ROOT-centos7"|"mac1014"|"mac10beta"|"ROOT-ubuntu16"|"ROOT-fedora30"|"windows10"|...
-spec      ::= "default"|"python3"|"rtcxxmod"|"noimt"|"cxx14"|"cxx17"
+label     ::= "ROOT-centos7"|"ROOT-ubuntu16"|...
+spec      ::= "default"|"python3"|"noimt"|"cxx17"|...
 flags     ::= "with flags" { flag }
 ```
 
 Note: The phrase can be ended by endline. What comes on the other lines will not be interpreted by the bot. Specified flags in the command will overwrite conflicting environment variables that is already set for the job.
+
+## Available values
+The values available for `label` and `spec` above are listed in https://github.com/root-project/jenkins-pipelines/blob/master/src/cern/root/pipeline/BuildConfiguration.groovy
+
+`getPullrequestConfiguration()` in that file shows the default combinations for PR builds.
+
 ## Examples:
 ##### @phsft-bot build
 Starts build on default build configuration.
